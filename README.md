@@ -7,7 +7,7 @@ Put the scanner in SPP Mode by scanning the BT Connection -  PDA/MObility System
 Page 1-8 of the User Guide
 
 Usage:
-In onCreate() of an Activity
+
 @Override
 public void onCreate(){
    
@@ -23,11 +23,9 @@ public void onCreate(){
       public void messageReceived(String type, ScanResult message) {
             Log.d(TAG,"Barcode Received: " + message.getBarcodeMessage());
       }
-
       @Override
       public void errorReceived(String type, String errorMessage) {
-
-       }        
+      }        
    });
 }
 
