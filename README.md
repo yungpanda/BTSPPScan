@@ -8,6 +8,10 @@ Page 1-8 of the User Guide
 
 Usage:
 In onCreate() of an Activity
+@Override
+public void onCreate(){
+   
+
   honeywellBTScanner = new HoneywellBTScanner(this);
   String macAddress ="00:10:20:3E:CC:94";        
   honeywellBTScanner.initiateScanner(macAddress);
@@ -25,10 +29,13 @@ In onCreate() of an Activity
 
        }        
    });
+}
 
 In onStop()
+@Override
+public void onStop(){
    honeywellBTScanner.stopScanner();
-
+}
 When sending commands to the scanner:
   honeywellBTScanner.sendCommand(String command);
   
