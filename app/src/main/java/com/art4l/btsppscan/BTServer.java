@@ -233,7 +233,6 @@ public class BTServer extends AbstractService{
     /**
      * Start the ConnectedThread to begin managing a Bluetooth connection
      *
-     * @param socket The BluetoothSocket on which the connection was made
      * @param device The BluetoothDevice that has been connected
      */
     public synchronized void connected( BluetoothDevice device) {
@@ -259,10 +258,11 @@ public class BTServer extends AbstractService{
 
         // Start the thread to manage the connection and perform transmissions
         mConnectedThread = new ConnectedThread(device);
-        mConnectedThread.start();
-
+        //check if there is a connection error
+        if (getState() != STATE_NOBT){
+            mConnectedThread.start();
         setState(STATE_CONNECTED);
-
+        }
     }
 
     /**
@@ -518,9 +518,6 @@ public class BTServer extends AbstractService{
             OutputStream tmpOut = null;
 
             // Get the BluetoothSocket input and output streams
-            
-          
- 
 
             
             try {

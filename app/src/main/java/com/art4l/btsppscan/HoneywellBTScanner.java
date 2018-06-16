@@ -66,20 +66,20 @@ public class HoneywellBTScanner {
                         }
                         break;
                     case BTServer.STATE_NOBT:			//problem with BT COnnection
-                        Log.d(TAG,"No BT Connection");
+                        Log.d(TAG,"No BT Connection, retry");
                         bTRetryCounter++;
-                        try {
-                            Thread.sleep(2000);			//wait 2 seconds
-                        } catch (InterruptedException e){
-
-                        }
                         if (bTRetryCounter == MAXRETRY) {
-                            Log.d(TAG,"No BT Connection");
+                            Log.d(TAG,"Connection Lost with scanner");
                             mMessageListener.errorReceived("NOCONNECT","Connection lost with scanner");
 
                             //raise an error to the application
 //                            Toast.makeText(M.this,"Geen verbinding met Ringscanner!!!",Toast.LENGTH_LONG).show();
                             break;
+                        }
+                        try {
+                            Thread.sleep(2000);			//wait 2 seconds
+                        } catch (InterruptedException e){
+
                         }
                         try {
                             btService.send(Message.obtain(null, BTServer.REQ_RESTART_BTSERVER, null));		//try to open connection
