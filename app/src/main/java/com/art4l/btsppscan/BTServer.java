@@ -28,7 +28,7 @@ public class BTServer extends AbstractService{
 
     // Debugging
     private static final String TAG = "BTServer";
-    private static final boolean D = true;
+    private static final boolean D = false;
 
 
     // Constants that indicate the current connection state
@@ -54,8 +54,7 @@ public class BTServer extends AbstractService{
     public BluetoothAdapter mBluetoothAdapter;
     private BluetoothServerSocket mmServerSocket;
     private static final UUID MY_UUID_SECURE = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-    
-    private static String NAME = "NoxScan";
+
     private String macAddress;
 
     private AcceptThread mAcceptThread;
@@ -73,7 +72,7 @@ public class BTServer extends AbstractService{
 
     @Override
     public void onServiceStarted() {
-        Log.d(TAG,"Service Started");
+        if (D) Log.d(TAG,"Service Started");
         //startBTServer(); 	--> will be started after macaddress is registered.
         //request the mac address
         send(Message.obtain(null, REQ_MACADDRESS, null));
@@ -85,7 +84,7 @@ public class BTServer extends AbstractService{
     @Override
     public void onStopService(){
 
-        Log.d(TAG,"onStopService");
+        if (D) Log.d(TAG,"onStopService");
 
         setState(STATE_NONE);
         
@@ -132,7 +131,7 @@ public class BTServer extends AbstractService{
 
     private void startBTServer(){
 
-        Log.d(TAG,"Start BTServer");
+        if (D) Log.d(TAG,"Start BTServer");
         makeDiscoverable();
         // Cancel any thread attempting to make a connection
         if (mAcceptThread != null) {
@@ -155,7 +154,7 @@ public class BTServer extends AbstractService{
 
         // Start the thread to listen on a BluetoothServerSocket
         if (mAcceptThread == null) {
-            Log.d(TAG,"New AcceptThread created");
+            if (D)Log.d(TAG,"New AcceptThread created");
             mAcceptThread = new AcceptThread();
             mAcceptThread.start();
         }
@@ -302,22 +301,10 @@ public class BTServer extends AbstractService{
         return mState;
     }
 
-    
-  //For Pairing
-    private void pairDevice(BluetoothDevice device) {
-        try {
-            Log.d("pairDevice()", "Start Pairing...");
-            Method m = device.getClass().getMethod("createBond", (Class[]) null);
-            m.invoke(device, (Object[]) null);
-            Log.d("pairDevice()", "Pairing finished.");
-        } catch (Exception e) {
-            Log.e("pairDevice()", e.getMessage());
-        }
-    }
 
     /**
     * Make an explicit pairing of BT
-    * This is only for TNT Nighttime customer
+    *
     * 
     */
    private BluetoothDevice pairedBT(){
@@ -452,7 +439,7 @@ public class BTServer extends AbstractService{
         }
 
         public void run() {
-            Log.i(TAG, "BEGIN mConnectThread");
+            if (D) Log.i(TAG, "BEGIN mConnectThread");
             setName("ConnectThread");
 
             // Always cancel discovery because it will slow down a connection
@@ -488,8 +475,8 @@ public class BTServer extends AbstractService{
 
         public void cancel() {
             try {
-                Log.d(TAG,"Connect thread cancelled");
-                mmSocket.close();
+                if (D) Log.d(TAG,"Connect thread cancelled");
+                if (mmSocket!=null) mmSocket.close();
             } catch (IOException e) {
                 Log.e(TAG, "close() of connect socket failed", e);
             }
@@ -509,7 +496,7 @@ public class BTServer extends AbstractService{
 
 
         public ConnectedThread(BluetoothDevice device) {
-            Log.d(TAG, "create ConnectedThread");
+            if (D) Log.d(TAG, "create ConnectedThread");
 
             
   //          mmSocket = socket;
@@ -519,24 +506,23 @@ public class BTServer extends AbstractService{
 
             // Get the BluetoothSocket input and output streams
 
-            
             try {
- //               mmSocket =(BluetoothSocket) device.getClass().getMethod("createRfcommSocket", new Class[] {int.class}).invoke(device,1);
                 // Always cancel discovery because it will slow down a connection
                 mBluetoothAdapter.cancelDiscovery();
                 ParcelUuid[] uids = device.getUuids();
             	mmSocket = device.createInsecureRfcommSocketToServiceRecord(MY_UUID_SECURE);
-//            	mmSocket = device.createRfcommSocketToServiceRecord(MY_UUID_SECURE);
-                Log.d(TAG,"Connect to " + mmSocket.getRemoteDevice().getName());
+                if (D) Log.d(TAG,"Connect to " + mmSocket.getRemoteDevice().getName());
+
                 mmSocket.connect();
 
                 tmpIn = mmSocket.getInputStream();
                 tmpOut = mmSocket.getOutputStream();
             } catch (IOException e) {
-                Log.e(TAG, "temp sockets not created", e);
+                Log.e(TAG, "temp sockets not created");
                 connectionFailed();
             } catch (IllegalArgumentException e) {
 				// TODO Auto-generated catch block
+
 				e.printStackTrace();
 			} 
 
@@ -546,7 +532,7 @@ public class BTServer extends AbstractService{
 
         public void run() {
 
-            Log.i(TAG, "BEGIN mConnectedThread");
+            if (D) Log.i(TAG, "BEGIN mConnectedThread");
             byte[] buffer = new byte[1024];
             int bytes = 0;
 
@@ -555,17 +541,17 @@ public class BTServer extends AbstractService{
                 try {
 
                 	int current = bytes;
-                    Log.d(TAG, "do-while -- current: " + current);
+                    if (D) Log.d(TAG, "do-while -- current: " + current);
                     
                     //blocking read
                     bytes = mmInStream.read(buffer);
 
-                    Log.d(TAG, "bytesRead: =" + bytes);
+                    if (D) Log.d(TAG, "bytesRead: =" + bytes);
 
                     if (bytes >= 0) current += bytes;
 
                     String scannedBarcode = new String(buffer).substring(0,current);
-                    Log.d(TAG,"Scanned Data: " + scannedBarcode);
+                    if (D) Log.d(TAG,"Scanned Data: " + scannedBarcode);
 
                     send(Message.obtain(null, STATE_BARCODE, scannedBarcode));
 
@@ -606,8 +592,8 @@ public class BTServer extends AbstractService{
 
         public void cancel() {
             try {
-                Log.d(TAG,"Connect thread cancelled");
-                mmSocket.close();
+                if (D) Log.d(TAG,"Connect thread cancelled");
+                if (mmSocket!=null) mmSocket.close();
             } catch (IOException e) {
                 Log.e(TAG, "close() of connect socket failed", e);
             }
