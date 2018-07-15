@@ -65,7 +65,9 @@ public class HoneywellBTScanner {
                         bTRetryCounter = 0;		//reset retry counter
                         isBTStarted = true;
 
-                        mConnectionListener.onConnected();
+                        if (mConnectionListener != null) {
+                            mConnectionListener.onConnected();
+                        }
 
                         break;
                     case BTServer.STATE_BARCODE:				//scanned data returned
@@ -97,13 +99,17 @@ public class HoneywellBTScanner {
                             isBTStarted = false;
                             proceedDiscovery();
                             //go back into discovery mode
-                            mConnectionListener.onDisconnected(false);
+                            if (mConnectionListener != null) {
+                                mConnectionListener.onDisconnected(false);
+                            }
 
                             break;
 
                         }
                         try {
-                            mConnectionListener.onDisconnected(true);
+                            if (mConnectionListener) {
+                                mConnectionListener.onDisconnected(true);
+                            }
 
                             btService.send(Message.obtain(null, BTServer.REQ_RESTART_BTSERVER, null));		//try to open connection
                             // show connection with scanner is lost
